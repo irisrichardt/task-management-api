@@ -22,6 +22,22 @@ export class TeamController {
     return this.teamService.create(team);
   }
 
+  @Post(':teamId/members/:userId')
+  async addMemberToTeam(
+    @Param('teamId') teamId: string,
+    @Param('userId') userId: string,
+  ) {
+    return this.teamService.addMemberToTeam(teamId, userId);
+  }
+
+  @Delete(':teamId/members/:userId')
+  async removeMemberFromTeam(
+    @Param('teamId') teamId: string,
+    @Param('userId') userId: string,
+  ): Promise<TeamDto> {
+    return this.teamService.removeMemberFromTeam(teamId, userId);
+  }
+
   @Put(':id')
   async update(@Param() params: TeamRouteParameters, @Body() team: TeamDto): Promise<TeamDto> {
     await this.teamService.update(params.id, team);

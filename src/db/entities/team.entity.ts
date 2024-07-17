@@ -16,6 +16,16 @@ export class TeamEntity {
   name: string;
 
   @ManyToMany(() => UserEntity, (user) => user.teams)
-  @JoinTable()
+  @JoinTable({
+    name: 'team_members',
+    joinColumn: {
+      name: 'team_id',
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'user_id',
+      referencedColumnName: 'id',
+    },
+  })
   members: UserEntity[];
 }
