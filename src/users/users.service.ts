@@ -35,6 +35,19 @@ export class UsersService {
     return this.mapEntityToDto(createdUser);
   }
 
+  async findById(id: string): Promise<UserDto> {
+    const foundUser = await this.usersRepository.findOne({ where: { id } })
+
+    if (!foundUser) {
+      throw new HttpException(
+        `User with id ${id} not found`,
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    return this.mapEntityToDto(foundUser);
+  }
+
   async findAll(params: FindAllParameters): Promise<UserDto[]> {
     const searchPrams: FindOptionsWhere<UserEntity> = {}
 
@@ -74,6 +87,36 @@ export class UsersService {
     };
   }
 
+  async update(id: string, user: UserDto): Promise<UserDto> {
+    const foundUser = await this.usersRepository.findOne({ where: { id } });
+
+    if (!foundUser) {
+      throw new HttpException(
+        `User with id '${id}' not found`,
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    const userEntity = this.mapDtoToEntity(user);
+
+    // Atualiza a usuário com os novos valores
+    await this.usersRepository.update(id, userEntity);
+
+    // Busca a usuário atualizada para retornar
+    const updatedUser = await this.usersRepository.findOne({ where: { id } });
+
+    if (!updatedUser) {
+      throw new HttpException(
+        `User with id '${id}' not found after update`,
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    return this.mapEntityToDto(updatedUser);
+  }
+
+
+
   async remove(id: string) {
 
     const result = await this.usersRepository.delete(id)
@@ -98,4 +141,14 @@ export class UsersService {
 
     return userDto;
   };
+
+  private mapDtoToEntity(userDto: UserDto): Partial<UserEntity> {
+    return {
+      username: userDto.username,
+      name: userDto.name,
+      birthDate: userDto.birthDate,
+      gender: userDto.gender,
+      email: userDto.email,
+    }
+  }
 }
